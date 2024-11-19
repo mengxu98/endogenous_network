@@ -1,0 +1,10 @@
+
+# Python
+__pycache__/
+
+# Results and data
+results/*
+!results/.gitkeep
+
+# IDE
+.vscode/

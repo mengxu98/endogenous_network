@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "endogenous_network"
+version = "0.1.0"
+description = "A comprehensive pipeline for network analysis and attractor detection"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {file = "LICENSE"}
+
+dependencies = [
+    "graphviz",
+    "matplotlib",
+    "mpl_toolkits",
+    "networkx",
+    "numpy",
+    "pandas",
+    "scipy",
+    "seaborn",
+    "sklearn",
+    "tqdm",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0.0",
+    "black>=21.0.0",
+    "flake8>=3.9.0",
+]
+
+[tool.pytest]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+
+[tool.black]
+line-length = 88
+target-version = ["py38"]
