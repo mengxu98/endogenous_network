@@ -1,0 +1,29 @@
+=== Hill Coefficient Optimization Report ===
+
+Input network file: results/0/network_without_0.txt
+Optimal Hill coefficient: 8.00
+Optimization success: True
+Final objective value: 4.5892
+
+Analysis across Hill coefficient range:
+    hill_coefficient     score
+0                  1  5.474408
+1                  2  5.123812
+2                  3  4.906816
+3                  4  4.761993
+4                  5  4.674954
+5                  6  4.625709
+6                  7  4.605697
+7                  8  4.587839
+8                  9  4.586106
+9                 10  4.596276
+10                11  4.607443
+11                12  4.627433
+12                13  4.641845
+13                14  4.665935
+14                15  4.696374
+15                16  4.717949
+16                17  4.738014
+17                18  4.765993
+18                19  4.792753
+19                20  4.815474

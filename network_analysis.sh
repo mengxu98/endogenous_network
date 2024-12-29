@@ -20,7 +20,7 @@ mkdir -p results/analysis
 echo "Running original network analysis..."
 if [ ! -f "results/0/network_without_0.txt" ]; then
     echo "Network file not found, running script..."
-    python "$NETWORK_SCRIPT" data results 0
+    python "$NETWORK_SCRIPT" data/network_neuron.txt results 0
 fi
 
 # Verify the network file exists

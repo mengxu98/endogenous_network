@@ -1,0 +1,10 @@
+Node	Activated by	Inhibited by
+Hes_family	Notch_signal	nothing
+ErbB	Hes_family	nothing
+Mash1	nothing	Notch_signal
+NeuroD	Mash1, Neurogenin_1, Neurogenin_2	nothing
+Neurogenin_1	nothing	Notch_signal
+Neurogenin_2	nothing	Notch_signal
+REST_NRSF	nothing	Neuron_genes
+SoxB	nothing	Neurogenin_protein_activity
+Notch_signal	Delta	nothing

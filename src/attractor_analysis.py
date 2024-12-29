@@ -296,57 +296,82 @@ class AttractorAnalyzer:
             plt.show()
 
     def plot_phase_portrait(self, node1=0, node2=1, save_path=None):
-        """Plot phase portrait of two nodes
-        
-        Args:
-            node1 (int): Index of the first node
-            node2 (int): Index of the second node
-            save_path (str, optional): Save path
-        """
+        """Plot enhanced phase portrait of two nodes with better attractor visualization"""
         # Create grid points
-        x = np.linspace(0, 1.2, 30)
-        y = np.linspace(0, 1.2, 30)
+        x = np.linspace(0, 1.0, 30)
+        y = np.linspace(0, 1.0, 30)
         X, Y = np.meshgrid(x, y)
         
-        # Get attractor states
+        # Get attractor states and frequencies
         attractors = np.array([row['state'] for _, row in self.data.iterrows()])
+        frequencies = np.array([row['frequency'] for _, row in self.data.iterrows()])
         
         # Calculate vector field
         U = np.zeros_like(X)
         V = np.zeros_like(Y)
         
-        # Simple vector field calculation (can be adjusted based on actual model)
+        # Simple vector field calculation
         for i in range(len(x)):
             for j in range(len(y)):
-                # Find nearest attractor
                 point = np.array([X[i,j], Y[i,j]])
                 distances = [np.linalg.norm(point - attractor[[node1,node2]]) 
                             for attractor in attractors]
                 nearest_attractor = attractors[np.argmin(distances)][[node1,node2]]
                 
-                # Calculate vector
                 U[i,j] = nearest_attractor[0] - X[i,j]
                 V[i,j] = nearest_attractor[1] - Y[i,j]
         
-        # Plot phase portrait
-        plt.figure(figsize=(8, 8))
+        # Create figure and axis
+        fig, ax = plt.subplots(figsize=(9, 8))
         
         # Plot streamlines
         magnitude = np.sqrt(U**2 + V**2)
-        plt.streamplot(X, Y, U, V, color=magnitude, cmap='viridis',
-                      density=2, linewidth=1, arrowsize=1)
+        strm = ax.streamplot(X, Y, U, V, color=magnitude, cmap='viridis',
+                            density=2, linewidth=1.5, arrowsize=1)
+        
+        # Calculate normalized frequencies for point sizes
+        max_size = 500
+        min_size = 100
+        normalized_frequencies = (frequencies - frequencies.min()) / (frequencies.max() - frequencies.min())
+        point_sizes = min_size + normalized_frequencies * (max_size - min_size)
         
         # Plot attractor points
+        scatter_points = []
         for i, attractor in enumerate(attractors):
-            plt.scatter(attractor[node1], attractor[node2], 
-                       c=f'C{i}', s=100, label=f'Attractor {i+1}')
+            scatter = ax.scatter(attractor[node1], attractor[node2], 
+                               s=point_sizes[i], c=f'C{i}', alpha=0.7,
+                               label=f'A{i+1} ({frequencies[i]})')
+            scatter_points.append((attractor[node1], attractor[node2], f'A{i+1}'))
         
-        # Set labels
-        plt.xlabel(f'{self.get_gene_name(node1)} State')
-        plt.ylabel(f'{self.get_gene_name(node2)} State')
-        plt.title('Phase Portrait')
-        plt.legend()
-        plt.grid(True, linestyle='--', alpha=0.3)
+        # Add annotations with leader lines
+        for x, y, label in scatter_points:
+            # Find nearby points
+            nearby_points = [(px, py) for px, py, _ in scatter_points 
+                            if abs(px-x) < 0.1 and abs(py-y) < 0.1 and (px, py) != (x, y)]
+            
+            # Adjust annotation position based on nearby points
+            if nearby_points:
+                xytext = (x + 0.15, y + 0.15)
+            else:
+                xytext = (x + 0.05, y + 0.05)
+            
+            ax.annotate(label, 
+                       xy=(x, y),
+                       xytext=xytext,
+                       bbox=dict(facecolor='white', edgecolor='none', alpha=0.7),
+                       arrowprops=dict(arrowstyle='->', connectionstyle='arc3,rad=0.2',
+                                     alpha=0.7))
+        
+        # Customize plot
+        ax.set_xlabel(f'{self.get_gene_name(node1)} State', fontsize=12)
+        ax.set_ylabel(f'{self.get_gene_name(node2)} State', fontsize=12)
+        ax.set_title('Phase Portrait with Attractor Basins', fontsize=14, pad=20)
+        
+        # Add colorbar
+        fig.colorbar(strm.lines, label='Vector Field Magnitude')
+        
+        # Add grid
+        ax.grid(True, linestyle='--', alpha=0.2)
         
         # Adjust layout
         plt.tight_layout()
@@ -426,7 +451,21 @@ class AttractorAnalyzer:
         node1 = list(self.gene_names.keys())[list(self.gene_names.values()).index(top_genes[0][0])]
         node2 = list(self.gene_names.keys())[list(self.gene_names.values()).index(top_genes[1][0])]
         self.plot_phase_portrait(node1, node2, 
-                               save_path=output_dir / 'phase_portrait.png')
+                               save_path=output_dir / 'phase_portrait_2d.png')
+        self.plot_phase_portrait_3d(node1, node2, 
+                                   save_path=output_dir / 'phase_portrait_3d.png')
+        
+        # Add three-gene phase portrait
+        # Select top three genes based on importance
+        top_genes = sorted(importance_metrics.items(), 
+                          key=lambda x: x[1]['overall_score'], 
+                          reverse=True)[:3]
+        node1 = list(self.gene_names.keys())[list(self.gene_names.values()).index(top_genes[0][0])]
+        node2 = list(self.gene_names.keys())[list(self.gene_names.values()).index(top_genes[1][0])]
+        node3 = list(self.gene_names.keys())[list(self.gene_names.values()).index(top_genes[2][0])]
+        
+        self.plot_three_gene_portrait(node1, node2, node3,
+                                    save_path=output_dir / 'phase_portrait_three_genes.png')
         
         # Generate report text
         with open(output_dir / 'comprehensive_report.txt', 'w') as f:
@@ -465,6 +504,220 @@ class AttractorAnalyzer:
                 f.write(", ".join(active_genes) if active_genes else "No active genes")
                 f.write("\n")
                 f.write(f"Full state: {row['state']}\n")
+
+    def plot_phase_portrait_3d(self, node1=0, node2=1, save_path=None):
+        """Plot 3D phase portrait with attractors and vector field
+        
+        Args:
+            node1 (int): Index of the first node
+            node2 (int): Index of the second node
+            save_path (str, optional): Path to save the figure
+        """
+        from mpl_toolkits.mplot3d import Axes3D
+        from matplotlib.colors import LinearSegmentedColormap
+        
+        # Create grid points
+        x = np.linspace(0, 1.2, 20)  # Reduced grid density for 3D
+        y = np.linspace(0, 1.2, 20)
+        X, Y = np.meshgrid(x, y)
+        
+        # Get attractor states and frequencies
+        attractors = np.array([row['state'] for _, row in self.data.iterrows()])
+        frequencies = np.array([row['frequency'] for _, row in self.data.iterrows()])
+        
+        # Calculate vector field
+        U = np.zeros_like(X)
+        V = np.zeros_like(Y)
+        Z = np.zeros_like(X)  # Height field for vector field visualization
+        
+        # Calculate vector field and potential field
+        for i in range(len(x)):
+            for j in range(len(y)):
+                point = np.array([X[i,j], Y[i,j]])
+                # Calculate distances to all attractors
+                distances = [np.linalg.norm(point - attractor[[node1,node2]]) 
+                           for attractor in attractors]
+                weights = np.exp(-np.array(distances) * 5)  # Exponential weighting
+                weights = weights / weights.sum()  # Normalize weights
+                
+                # Calculate weighted influence of attractors
+                nearest_attractor = attractors[np.argmin(distances)][[node1,node2]]
+                U[i,j] = nearest_attractor[0] - X[i,j]
+                V[i,j] = nearest_attractor[1] - Y[i,j]
+                
+                # Calculate height based on weighted sum of attractor influences
+                Z[i,j] = np.sum(weights * frequencies) / frequencies.max()
+        
+        # Create figure
+        fig = plt.figure(figsize=(15, 12))
+        ax = fig.add_subplot(111, projection='3d')
+        
+        # Plot surface
+        surf = ax.plot_surface(X, Y, Z, cmap='viridis', alpha=0.6)
+        
+        # Plot vector field as quiver
+        # Subsample the grid for clearer visualization
+        skip = 2
+        ax.quiver(X[::skip, ::skip], Y[::skip, ::skip], Z[::skip, ::skip],
+                  U[::skip, ::skip], V[::skip, ::skip], np.zeros_like(Z[::skip, ::skip]),
+                  length=0.1, normalize=True, color='gray', alpha=0.3)
+        
+        # Plot attractors as scatter points
+        normalized_frequencies = frequencies / frequencies.max()
+        scatter_points = []
+        colors = plt.cm.rainbow(np.linspace(0, 1, len(attractors)))
+        
+        for i, (attractor, freq, color) in enumerate(zip(attractors, normalized_frequencies, colors)):
+            x, y = attractor[node1], attractor[node2]
+            z = freq
+            scatter = ax.scatter([x], [y], [z], 
+                               s=300 * freq,  # Size proportional to frequency
+                               c=[color],
+                               alpha=0.8,
+                               label=f'A{i+1} ({int(frequencies[i])})')
+            scatter_points.append((x, y, z, f'A{i+1}'))
+        
+        # Add annotations for attractors
+        for x, y, z, label in scatter_points:
+            ax.text(x + 0.05, y + 0.05, z + 0.05, label,
+                    bbox=dict(facecolor='white', edgecolor='none', alpha=0.7))
+        
+        # Customize plot
+        ax.set_xlabel(f'{self.get_gene_name(node1)} State')
+        ax.set_ylabel(f'{self.get_gene_name(node2)} State')
+        ax.set_zlabel('Normalized Frequency')
+        ax.set_title('3D Phase Portrait with Attractor Basins')
+        
+        # Add colorbar
+        fig.colorbar(surf, ax=ax, label='Potential Field')
+        
+        # Adjust view angle for better visualization
+        ax.view_init(elev=25, azim=45)
+        
+        # Add legend
+        ax.legend()
+        
+        # Adjust layout
+        plt.tight_layout()
+        
+        if save_path:
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+            plt.close()
+        else:
+            plt.show()
+
+    def plot_three_gene_portrait(self, node1=0, node2=1, node3=2, save_path=None):
+        """Plot 3D phase portrait for three genes with consistent style as 2D version"""
+        from mpl_toolkits.mplot3d import Axes3D
+        
+        # Create figure with proper size and layout
+        plt.style.use('default')
+        fig = plt.figure(figsize=(13, 10))
+        gs = fig.add_gridspec(1, 2, width_ratios=[30, 1])
+        ax = fig.add_subplot(gs[0, 0], projection='3d')
+        cax = fig.add_subplot(gs[0, 1])
+        
+        # Get attractor states and frequencies
+        attractors = np.array([row['state'] for _, row in self.data.iterrows()])
+        frequencies = np.array([row['frequency'] for _, row in self.data.iterrows()])
+        
+        # Generate radial points around each attractor
+        n_radial = 16  # number of radial directions
+        radius = 0.15  # length of arrows
+        
+        # Generate evenly distributed directions in 3D
+        phi = np.linspace(0, 2*np.pi, n_radial)
+        theta = np.linspace(0, np.pi, n_radial//2)
+        phi, theta = np.meshgrid(phi, theta)
+        phi = phi.flatten()
+        theta = theta.flatten()
+        
+        # Convert spherical to cartesian coordinates
+        x = radius * np.sin(theta) * np.cos(phi)
+        y = radius * np.sin(theta) * np.sin(phi)
+        z = radius * np.cos(theta)
+        directions = np.stack([x, y, z], axis=1)
+        
+        # Plot radial arrows for each attractor
+        for i, attractor in enumerate(attractors):
+            attractor_pos = attractor[[node1,node2,node3]]
+            
+            for direction in directions:
+                start = attractor_pos - direction
+                end = attractor_pos + direction
+                
+                # Check if both start and end points are within bounds
+                if (np.all(start >= 0) and np.all(start <= 1.2) and 
+                    np.all(end >= 0) and np.all(end <= 1.2)):
+                    ax.plot([start[0], end[0]], 
+                           [start[1], end[1]], 
+                           [start[2], end[2]],
+                           color=f'C{i}', alpha=0.3, linewidth=1)
+        
+        # Calculate normalized frequencies for point sizes
+        max_size = 300
+        min_size = 100
+        normalized_frequencies = (frequencies - frequencies.min()) / (frequencies.max() - frequencies.min())
+        point_sizes = min_size + normalized_frequencies * (max_size - min_size)
+        
+        # Plot attractors
+        scatter_points = []
+        for i, attractor in enumerate(attractors):
+            scatter = ax.scatter(attractor[node1], attractor[node2], attractor[node3],
+                               s=point_sizes[i], c=f'C{i}', alpha=0.7,
+                               label=f'A{i+1} ({frequencies[i]:.0f})')
+            scatter_points.append((attractor[node1], attractor[node2], attractor[node3], f'A{i+1}'))
+        
+        # Add annotations with leader lines
+        for x, y, z, label in scatter_points:
+            nearby_points = [(px, py, pz) for px, py, pz, _ in scatter_points 
+                            if abs(px-x) < 0.1 and abs(py-y) < 0.1 and abs(pz-z) < 0.1 
+                            and (px, py, pz) != (x, y, z)]
+            
+            if nearby_points:
+                xytext = (x + 0.15, y + 0.15, z + 0.15)
+            else:
+                xytext = (x + 0.05, y + 0.05, z + 0.05)
+            
+            ax.text(xytext[0], xytext[1], xytext[2], label,
+                   bbox=dict(facecolor='white', edgecolor='none', alpha=0.7))
+        
+        # Customize plot
+        ax.set_xlabel(f'{self.get_gene_name(node1)} State', fontsize=12)
+        ax.set_ylabel(f'{self.get_gene_name(node2)} State', fontsize=12)
+        ax.set_zlabel(f'{self.get_gene_name(node3)} State', fontsize=12)
+        ax.set_title('Three-Gene Phase Portrait', fontsize=14, pad=20)
+        
+        # Adjust axis label positions and padding
+        ax.xaxis.set_rotate_label(False)
+        ax.yaxis.set_rotate_label(False)
+        ax.zaxis.set_rotate_label(False)
+        ax.xaxis.labelpad = 10
+        ax.yaxis.labelpad = 10
+        ax.zaxis.labelpad = 10
+        
+        # Set background color to white
+        ax.xaxis.pane.fill = False
+        ax.yaxis.pane.fill = False
+        ax.zaxis.pane.fill = False
+        ax.xaxis.pane.set_edgecolor('w')
+        ax.yaxis.pane.set_edgecolor('w')
+        ax.zaxis.pane.set_edgecolor('w')
+        
+        # Set view angle
+        ax.view_init(elev=20, azim=45)
+        
+        # Add grid
+        ax.grid(True, linestyle='--', alpha=0.2)
+        
+        # Adjust spacing
+        plt.subplots_adjust(wspace=0.02, left=0.1)
+        
+        if save_path:
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+            plt.close()
+        else:
+            plt.show()
 
 def main():
     import argparse

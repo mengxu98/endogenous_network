@@ -1,0 +1,105 @@
+=== Attractor Comprehensive Analysis Report ===
+
+Network Differential Equation System:
+dRUNX1/dt = 8(RUNX1³)/(1 + 8(RUNX1³)) * 1 - RUNX1
+dPU.1/dt = 8(PU.1³+C/EBPα³+RUNX1³)/(1 + 8(PU.1³+C/EBPα³+RUNX1³)) * 1/(1 + 8(GFI1³))*1/(1 + 8(GATA1³)) - PU.1
+dC/EBPα/dt = 8(C/EBPα³+RUNX1³)/(1 + 8(C/EBPα³+RUNX1³)) * 1 - C/EBPα
+dGFI1/dt = 8(C/EBPα³+IKAROS³)/(1 + 8(C/EBPα³+IKAROS³)) * 1/(1 + 8(EGR1³)) - GFI1
+dEGR1/dt = 8(PU.1³)/(1 + 8(PU.1³)) * 1/(1 + 8(GFI1³)) - EGR1
+dGATA1/dt = 8(GATA1³+RUNX1³)/(1 + 8(GATA1³+RUNX1³)) * 1/(1 + 8(PU.1³))*1/(1 + 8(IKAROS³)) - GATA1
+dKLF1/dt = 8(GATA1³)/(1 + 8(GATA1³)) * 1/(1 + 8(FLI1³)) - KLF1
+dFLI1/dt = 8(GATA1³+PU.1³)/(1 + 8(GATA1³+PU.1³)) * 1/(1 + 8(KLF1³)) - FLI1
+dIKAROS/dt = 8(IKAROS³)/(1 + 8(IKAROS³)) * 1/(1 + 8(GATA1³)) - IKAROS
+dEBF1/dt = 8(IKAROS³)/(1 + 8(IKAROS³)) * 1/(1 + 8(C/EBPα³)) - EBF1
+
+Total simulation runs: 2000
+Unique attractors: 15
+
+Gene importance ranking:
+GATA1: 0.776
+GFI1: 0.747
+FLI1: 0.746
+PU.1: 0.721
+C/EBPα: 0.704
+EGR1: 0.487
+KLF1: 0.471
+RUNX1: 0.323
+IKAROS: 0.266
+EBF1: 0.120
+
+Attractor detailed information:
+
+Attractor 1:
+Frequency: 688 (34.40%)
+Active genes: RUNX1, C/EBPα, GFI1, GATA1, KLF1, FLI1
+Full state: [0.809  0.0213 0.9115 0.8583 0.     0.9114 0.1517 0.8349 0.     0.    ]
+
+Attractor 5:
+Frequency: 262 (13.10%)
+Active genes: PU.1, C/EBPα, GFI1
+Full state: [0.     0.1547 0.809  0.809  0.0055 0.     0.     0.0288 0.     0.    ]
+
+Attractor 4:
+Frequency: 222 (11.10%)
+Active genes: RUNX1, C/EBPα, GFI1, GATA1, KLF1, FLI1
+Full state: [0.809  0.0213 0.9115 0.8583 0.     0.9114 0.8349 0.1517 0.     0.    ]
+
+Attractor 2:
+Frequency: 183 (9.15%)
+Active genes: No active genes
+Full state: [0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+
+Attractor 8:
+Frequency: 153 (7.65%)
+Active genes: PU.1, C/EBPα, GFI1, IKAROS, EBF1
+Full state: [0.     0.1204 0.809  0.8944 0.002  0.     0.     0.0138 0.809  0.1545]
+
+Attractor 6:
+Frequency: 121 (6.05%)
+Active genes: GFI1, IKAROS, EBF1
+Full state: [0.    0.    0.    0.809 0.    0.    0.    0.    0.809 0.809]
+
+Attractor 10:
+Frequency: 63 (3.15%)
+Active genes: C/EBPα, GFI1, GATA1, KLF1, FLI1
+Full state: [0.     0.0295 0.809  0.809  0.     0.8086 0.1694 0.7785 0.     0.    ]
+
+Attractor 3:
+Frequency: 54 (2.70%)
+Active genes: RUNX1, PU.1, C/EBPα, GFI1, EGR1, GATA1, FLI1
+Full state: [0.809  0.9037 0.9115 0.1534 0.8312 0.1172 0.0021 0.8555 0.     0.    ]
+
+Attractor 11:
+Frequency: 52 (2.60%)
+Active genes: C/EBPα, GFI1, GATA1, KLF1, FLI1
+Full state: [0.     0.0295 0.809  0.809  0.     0.8086 0.7785 0.1694 0.     0.    ]
+
+Attractor 14:
+Frequency: 42 (2.10%)
+Active genes: GATA1, KLF1, FLI1
+Full state: [0.     0.     0.     0.     0.     0.809  0.1693 0.7788 0.     0.    ]
+
+Attractor 13:
+Frequency: 41 (2.05%)
+Active genes: PU.1, C/EBPα, GFI1, EGR1, FLI1
+Full state: [0.     0.8848 0.809  0.1468 0.8263 0.     0.     0.8472 0.     0.    ]
+
+Attractor 15:
+Frequency: 32 (1.60%)
+Active genes: GATA1, KLF1, FLI1
+Full state: [0.     0.     0.     0.     0.     0.809  0.7788 0.1693 0.     0.    ]
+
+Attractor 9:
+Frequency: 31 (1.55%)
+Active genes: RUNX1, PU.1, C/EBPα, GFI1, EGR1, FLI1, IKAROS, EBF1
+Full state: [0.809  0.9099 0.9115 0.1644 0.8282 0.022  0.     0.8577 0.8089 0.1146]
+
+Attractor 12:
+Frequency: 29 (1.45%)
+Active genes: PU.1, EGR1, FLI1
+Full state: [0.    0.809 0.    0.    0.809 0.    0.    0.809 0.    0.   ]
+
+Attractor 7:
+Frequency: 27 (1.35%)
+Active genes: PU.1, C/EBPα, GFI1, EGR1, FLI1, IKAROS, EBF1
+Full state: [0.     0.8697 0.809  0.1715 0.8077 0.     0.     0.8403 0.809  0.1545]

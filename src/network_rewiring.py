@@ -13,8 +13,8 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(current_dir)  # Get parent directory
 
 # Read the original network data
-input_file = "network.txt"
-file_path = os.path.join(current_dir, "data", input_file)
+# input_file = "network.txt"
+# file_path = os.path.join(current_dir, "data", input_file)
 
 
 def create_gene_mapping(frame):
@@ -279,7 +279,7 @@ def main(nodesnum, totalnum):
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Network rewiring analysis")
-    parser.add_argument("input_dir", help="Input directory containing network.txt")
+    parser.add_argument("input_file", help="Path to the input network file")
     parser.add_argument("output_dir", help="Output directory for results")
     parser.add_argument(
         "nodes", type=int, help="Number of nodes to remove (0 for original network)"
@@ -318,8 +318,8 @@ if __name__ == "__main__":
         # Parse command line arguments
         args = parse_args()
 
-        # Setup input/output paths
-        file_path = os.path.join(args.input_dir, input_file)
+        # Use the input file path directly
+        file_path = args.input_file
         project_root = args.output_dir
 
         # Verify file exists

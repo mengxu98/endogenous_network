@@ -1,0 +1,17 @@
+=== Optimization Stability Analysis ===
+
+Hill Coefficient Statistics:
+mean: 8.0000
+std: 0.0000
+min: 8.0000
+max: 8.0000
+median: 8.0000
+
+Objective Value Statistics:
+mean: 4.5889
+std: 0.0037
+min: 4.5792
+max: 4.5981
+median: 4.5892
+
+Optimization Success Rate: 78.00%
